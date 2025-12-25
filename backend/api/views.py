@@ -25,6 +25,13 @@ from .serializers import (
     RecipeSerializer, RecipeCreateUpdateSerializer,
     RecipeShortSerializer, SubscriptionSerializer
 )
+from foodgram.constants import (
+    ERROR_SELF_SUBSCRIPTION,
+    ERROR_ALREADY_SUBSCRIBED,
+    ERROR_NOT_SUBSCRIBED,
+    ERROR_RECIPE_ALREADY_ADDED,
+    ERROR_RECIPE_NOT_ADDED,
+)
 
 
 class CustomUserViewSet(DjoserUserViewSet):
@@ -90,7 +97,7 @@ class CustomUserViewSet(DjoserUserViewSet):
         if request.method == 'POST':
             if request.user == author:
                 return Response(
-                    {'errors': 'Нельзя подписаться на самого себя.'},
+                    {'errors': ERROR_SELF_SUBSCRIPTION},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -101,7 +108,7 @@ class CustomUserViewSet(DjoserUserViewSet):
 
             if not created:
                 return Response(
-                    {'errors': 'Вы уже подписаны на этого пользователя.'},
+                    {'errors': ERROR_ALREADY_SUBSCRIBED},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -118,7 +125,7 @@ class CustomUserViewSet(DjoserUserViewSet):
 
         if not subscription.exists():
             return Response(
-                {'errors': 'Вы не подписаны на этого пользователя.'},
+                {'errors': ERROR_NOT_SUBSCRIBED},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -180,7 +187,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if not created:
             return Response(
-                {'errors': 'Рецепт уже добавлен.'},
+                {'errors': ERROR_RECIPE_ALREADY_ADDED},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -193,7 +200,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if not obj.exists():
             return Response(
-                {'errors': 'Рецепт не был добавлен.'},
+                {'errors': ERROR_RECIPE_NOT_ADDED},
                 status=status.HTTP_400_BAD_REQUEST
             )
 

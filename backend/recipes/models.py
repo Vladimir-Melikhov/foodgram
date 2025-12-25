@@ -2,6 +2,15 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import CustomUser
+from foodgram.constants import (
+    MAX_LENGTH_TAG_NAME,
+    MAX_LENGTH_TAG_SLUG,
+    MAX_LENGTH_INGREDIENT_NAME,
+    MAX_LENGTH_INGREDIENT_UNIT,
+    MAX_LENGTH_RECIPE_NAME,
+    MIN_COOKING_TIME,
+    MIN_INGREDIENT_AMOUNT,
+)
 
 
 class Tag(models.Model):
@@ -9,12 +18,12 @@ class Tag(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=32,
+        max_length=MAX_LENGTH_TAG_NAME,
         unique=True,
     )
     slug = models.SlugField(
         'Слаг',
-        max_length=32,
+        max_length=MAX_LENGTH_TAG_SLUG,
         unique=True,
     )
 
@@ -32,11 +41,11 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         'Название',
-        max_length=128,
+        max_length=MAX_LENGTH_INGREDIENT_NAME,
     )
     measurement_unit = models.CharField(
         'Единица измерения',
-        max_length=64,
+        max_length=MAX_LENGTH_INGREDIENT_UNIT,
     )
 
     class Meta:
@@ -65,7 +74,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         'Название',
-        max_length=256,
+        max_length=MAX_LENGTH_RECIPE_NAME,
     )
     image = models.ImageField(
         'Изображение',
@@ -85,7 +94,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления (мин)',
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(MIN_COOKING_TIME)],
     )
     pub_date = models.DateTimeField(
         'Дата публикации',
@@ -118,7 +127,7 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         'Количество',
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(MIN_INGREDIENT_AMOUNT)],
     )
 
     class Meta:

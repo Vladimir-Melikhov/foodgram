@@ -10,6 +10,16 @@ from recipes.models import (
     Favorite, ShoppingCart
 )
 from users.models import CustomUser, Subscription
+from foodgram.constants import (
+    ERROR_USERNAME_ME,
+    ERROR_USERNAME_INVALID,
+    ERROR_TAGS_REQUIRED,
+    ERROR_TAGS_DUPLICATE,
+    ERROR_INGREDIENTS_REQUIRED,
+    ERROR_INGREDIENTS_DUPLICATE,
+    ERROR_INGREDIENTS_NOT_EXIST,
+    ERROR_INGREDIENT_AMOUNT,
+)
 
 
 class Base64ImageField(serializers.ImageField):
@@ -60,12 +70,10 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     def validate_username(self, value):
         if value.lower() == 'me':
-            raise serializers.ValidationError(
-                "Имя пользователя 'me' недопустимо.")
+            raise serializers.ValidationError(ERROR_USERNAME_ME)
 
         if not re.match(r'^[\w.@+-]+$', value):
-            raise serializers.ValidationError(
-                "Недопустимые символы в имени пользователя.")
+            raise serializers.ValidationError(ERROR_USERNAME_INVALID)
         return value
 
 
@@ -186,13 +194,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         tags = self.initial_data.get('tags')
         if not tags:
             raise serializers.ValidationError({
-                'tags': 'Нужен хотя бы один тег.'
+                'tags': ERROR_TAGS_REQUIRED
             })
 
         ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент.'
+                'ingredients': ERROR_INGREDIENTS_REQUIRED
             })
 
         ingredient_list = []
@@ -200,26 +208,26 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             ingredient_id = item.get('id')
             if ingredient_id in ingredient_list:
                 raise serializers.ValidationError({
-                    'ingredients': 'Ингредиенты не должны повторяться.'
+                    'ingredients': ERROR_INGREDIENTS_DUPLICATE
                 })
             ingredient_list.append(ingredient_id)
 
             amount = item.get('amount')
             if int(amount) < 1:
                 raise serializers.ValidationError({
-                    'ingredients': 'Кол-во ингредиента должно быть больше 0.'
+                    'ingredients': ERROR_INGREDIENT_AMOUNT
                 })
 
         existing_count = Ingredient.objects.filter(
             id__in=ingredient_list).count()
         if len(ingredient_list) != existing_count:
             raise serializers.ValidationError({
-                'ingredients': 'Один или несколько ингредиентов не существуют'
+                'ingredients': ERROR_INGREDIENTS_NOT_EXIST
             })
 
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError({
-                'tags': 'Теги не должны повторяться.'
+                'tags': ERROR_TAGS_DUPLICATE
             })
 
         return data
