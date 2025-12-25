@@ -210,7 +210,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'ingredients': 'Кол-во ингредиента должно быть больше 0.'
                 })
 
-        existing_count = Ingredient.objects.filter(id__in=ingredient_list).count()
+        existing_count = Ingredient.objects.filter(
+            id__in=ingredient_list).count()
         if len(ingredient_list) != existing_count:
             raise serializers.ValidationError({
                 'ingredients': 'Один или несколько ингредиентов не существуют'

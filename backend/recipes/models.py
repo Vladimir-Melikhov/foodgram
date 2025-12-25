@@ -195,4 +195,5 @@ class ShoppingCart(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user.username} добавил {self.recipe.name} в список покупок'
+        return (f'{self.user.username}'
+        'добавил {self.recipe.name} в список покупок')
