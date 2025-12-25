@@ -4,12 +4,11 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from reportlab.lib.pagesizes import A4
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import (
+    IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from recipes.models import (
@@ -151,13 +150,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
     
     queryset = Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     pagination_class = CustomPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.action in ['create', 'partial_update']:
+        if self.action in ['create', 'partial_update', 'update']:
             return RecipeCreateUpdateSerializer
         return RecipeSerializer
 
@@ -246,11 +245,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
         p = canvas.Canvas(response, pagesize=A4)
-        
-        # Регистрация шрифта для кириллицы
-        # В production нужно добавить файл шрифта
-        # pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
-        # p.setFont('DejaVuSans', 14)
         
         p.setFont('Helvetica', 14)
         p.drawString(100, 800, 'Shopping List')
