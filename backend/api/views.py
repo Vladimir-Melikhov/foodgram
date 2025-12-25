@@ -29,7 +29,7 @@ from .serializers import (
 
 class CustomUserViewSet(DjoserUserViewSet):
     """Вьюсет для пользователей."""
-    
+
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = CustomPageNumberPagination
@@ -56,7 +56,7 @@ class CustomUserViewSet(DjoserUserViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-        
+
         user.avatar.delete()
         user.avatar = None
         user.save()
@@ -86,49 +86,49 @@ class CustomUserViewSet(DjoserUserViewSet):
     )
     def subscribe(self, request, id=None):
         author = get_object_or_404(CustomUser, id=id)
-        
+
         if request.method == 'POST':
             if request.user == author:
                 return Response(
                     {'errors': 'Нельзя подписаться на самого себя.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             subscription, created = Subscription.objects.get_or_create(
                 user=request.user,
                 author=author
             )
-            
+
             if not created:
                 return Response(
                     {'errors': 'Вы уже подписаны на этого пользователя.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             serializer = SubscriptionSerializer(
                 author,
                 context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         subscription = Subscription.objects.filter(
             user=request.user,
             author=author
         )
-        
+
         if not subscription.exists():
             return Response(
                 {'errors': 'Вы не подписаны на этого пользователя.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для тегов."""
-    
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AllowAny]
@@ -137,7 +137,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для ингредиентов."""
-    
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny]
@@ -148,7 +148,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецептов."""
-    
+
     queryset = Recipe.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     pagination_class = CustomPageNumberPagination
@@ -177,26 +177,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=request.user,
             recipe=recipe
         )
-        
+
         if not created:
             return Response(
                 {'errors': 'Рецепт уже добавлен.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         serializer = RecipeShortSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_from(self, model, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
         obj = model.objects.filter(user=request.user, recipe=recipe)
-        
+
         if not obj.exists():
             return Response(
                 {'errors': 'Рецепт не был добавлен.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -245,10 +245,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
         p = canvas.Canvas(response, pagesize=A4)
-        
+
         p.setFont('Helvetica', 14)
         p.drawString(100, 800, 'Shopping List')
-        
+
         y = 750
         for ingredient in ingredients:
             name = ingredient['ingredient__name']
@@ -264,5 +264,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         p.showPage()
         p.save()
-        
+
         return response

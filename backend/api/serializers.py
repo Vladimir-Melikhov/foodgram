@@ -2,7 +2,6 @@ import base64
 import re
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
@@ -15,7 +14,7 @@ from users.models import CustomUser, Subscription
 
 class Base64ImageField(serializers.ImageField):
     """Кастомное поле для обработки изображений в base64."""
-    
+
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -26,7 +25,7 @@ class Base64ImageField(serializers.ImageField):
 
 class CustomUserSerializer(UserSerializer):
     """Сериализатор пользователя."""
-    
+
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField(required=False, allow_null=True)
 
@@ -51,7 +50,7 @@ class CustomUserSerializer(UserSerializer):
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """Сериализатор создания пользователя."""
-    
+
     class Meta:
         model = CustomUser
         fields = (
@@ -61,18 +60,18 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     def validate_username(self, value):
         if value.lower() == 'me':
-            raise serializers.ValidationError("Имя пользователя 'me' недопустимо.")
-        
+            raise serializers.ValidationError(
+                "Имя пользователя 'me' недопустимо.")
+
         if not re.match(r'^[\w.@+-]+$', value):
             raise serializers.ValidationError(
                 "Недопустимые символы в имени пользователя.")
-            
         return value
 
 
 class AvatarSerializer(serializers.ModelSerializer):
     """Сериализатор для аватара."""
-    
+
     avatar = Base64ImageField()
 
     class Meta:
@@ -82,7 +81,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор тегов."""
-    
+
     class Meta:
         model = Tag
         fields = ('id', 'name', 'slug')
@@ -90,7 +89,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
-    
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -98,7 +97,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов в рецепте (чтение)."""
-    
+
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name', read_only=True)
     measurement_unit = serializers.CharField(
@@ -113,7 +112,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов в рецепте (запись)."""
-    
+
     id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
@@ -124,7 +123,7 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор рецептов для чтения."""
-    
+
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(
@@ -168,7 +167,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания и обновления рецептов."""
-    
+
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
@@ -189,7 +188,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'tags': 'Нужен хотя бы один тег.'
             })
-        
+
         ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError({
@@ -208,17 +207,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             amount = item.get('amount')
             if int(amount) < 1:
                 raise serializers.ValidationError({
-                    'ingredients': 'Количество ингредиента должно быть больше 0.'
+                    'ingredients': 'Кол-во ингредиента должно быть больше 0.'
                 })
 
-        # 3. Проверка существования ингредиентов в БД (исправление 404 -> 400)
         existing_count = Ingredient.objects.filter(id__in=ingredient_list).count()
         if len(ingredient_list) != existing_count:
             raise serializers.ValidationError({
-                'ingredients': 'Один или несколько ингредиентов не существуют.'
+                'ingredients': 'Один или несколько ингредиентов не существуют'
             })
-            
-        # 4. Проверка уникальности тегов
+
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError({
                 'tags': 'Теги не должны повторяться.'
@@ -251,14 +248,14 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags', None)
         ingredients = validated_data.pop('ingredients', None)
-        
+
         if tags is not None:
             instance.tags.set(tags)
-        
+
         if ingredients is not None:
             instance.recipe_ingredients.all().delete()
             self.create_ingredients(instance, ingredients)
-        
+
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
@@ -279,7 +276,7 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(CustomUserSerializer):
     """Сериализатор подписок."""
-    
+
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 

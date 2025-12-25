@@ -2,6 +2,7 @@ from django_filters.rest_framework import FilterSet, filters
 from recipes.models import Recipe, Ingredient, Tag
 from users.models import CustomUser
 
+
 class RecipeFilter(FilterSet):
     """Фильтр для рецептов."""
 
@@ -35,7 +36,7 @@ class RecipeFilter(FilterSet):
 
 class IngredientFilter(FilterSet):
     """Фильтр для ингредиентов."""
-    
+
     name = filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:

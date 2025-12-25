@@ -29,7 +29,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     """Модель ингредиентов."""
-    
+
     name = models.CharField(
         'Название',
         max_length=128,
@@ -56,7 +56,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     """Модель рецептов."""
-    
+
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -103,7 +103,7 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     """Модель связи рецепта и ингредиента."""
-    
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -138,7 +138,7 @@ class RecipeIngredient(models.Model):
 
 class Favorite(models.Model):
     """Модель избранного."""
-    
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -169,7 +169,7 @@ class Favorite(models.Model):
 
 class ShoppingCart(models.Model):
     """Модель списка покупок."""
-    
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -196,4 +196,3 @@ class ShoppingCart(models.Model):
 
     def __str__(self):
         return f'{self.user.username} добавил {self.recipe.name} в список покупок'
-    

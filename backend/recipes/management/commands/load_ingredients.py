@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file_path = options['file_path']
-        
+
         if file_path.endswith('.json'):
             self.load_from_json(file_path)
         elif file_path.endswith('.csv'):
