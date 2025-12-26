@@ -8,30 +8,41 @@ from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly)
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
-from recipes.models import (
-    Tag, Ingredient, Recipe, RecipeIngredient,
-    Favorite, ShoppingCart
-)
-from users.models import CustomUser, Subscription
-from .filters import RecipeFilter, IngredientFilter
-from .pagination import CustomPageNumberPagination
-from .permissions import IsAuthorOrReadOnly
-from .serializers import (
-    CustomUserSerializer, AvatarSerializer,
-    TagSerializer, IngredientSerializer,
-    RecipeSerializer, RecipeCreateUpdateSerializer,
-    RecipeShortSerializer, SubscriptionSerializer
+from api.filters import IngredientFilter, RecipeFilter
+from api.pagination import CustomPageNumberPagination
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers import (
+    AvatarSerializer,
+    CustomUserSerializer,
+    IngredientSerializer,
+    RecipeCreateUpdateSerializer,
+    RecipeSerializer,
+    RecipeShortSerializer,
+    SubscriptionSerializer,
+    TagSerializer,
 )
 from foodgram.constants import (
-    ERROR_SELF_SUBSCRIPTION,
     ERROR_ALREADY_SUBSCRIBED,
     ERROR_NOT_SUBSCRIBED,
     ERROR_RECIPE_ALREADY_ADDED,
     ERROR_RECIPE_NOT_ADDED,
+    ERROR_SELF_SUBSCRIPTION,
 )
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingCart,
+    Tag,
+)
+from users.models import CustomUser, Subscription
 
 
 class CustomUserViewSet(DjoserUserViewSet):
@@ -238,7 +249,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients = RecipeIngredient.objects.filter(
-            recipe__in_shopping_cart__user=request.user
+            recipe__shopping_carts__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'

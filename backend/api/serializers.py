@@ -5,21 +5,25 @@ from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
-from recipes.models import (
-    Tag, Ingredient, Recipe, RecipeIngredient,
-    Favorite, ShoppingCart
-)
-from users.models import CustomUser, Subscription
 from foodgram.constants import (
-    ERROR_USERNAME_ME,
-    ERROR_USERNAME_INVALID,
-    ERROR_TAGS_REQUIRED,
-    ERROR_TAGS_DUPLICATE,
-    ERROR_INGREDIENTS_REQUIRED,
+    ERROR_INGREDIENT_AMOUNT,
     ERROR_INGREDIENTS_DUPLICATE,
     ERROR_INGREDIENTS_NOT_EXIST,
-    ERROR_INGREDIENT_AMOUNT,
+    ERROR_INGREDIENTS_REQUIRED,
+    ERROR_TAGS_DUPLICATE,
+    ERROR_TAGS_REQUIRED,
+    ERROR_USERNAME_INVALID,
+    ERROR_USERNAME_ME,
 )
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingCart,
+    Tag,
+)
+from users.models import CustomUser, Subscription
 
 
 class Base64ImageField(serializers.ImageField):
