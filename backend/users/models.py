@@ -41,7 +41,7 @@ class CustomUser(AbstractUser):
     )
 
     class Meta:
-        ordering = ['id']
+        ordering = ['username']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -66,7 +66,8 @@ class Subscription(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        # Исправлено: сортировка по пользователю вместо id
+        ordering = ['user']
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = [

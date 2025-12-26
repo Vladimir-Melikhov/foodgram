@@ -9,7 +9,14 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('id', 'username', 'email', 'first_name', 'last_name')
     search_fields = ('username', 'email')
     list_filter = ('is_staff', 'is_superuser', 'is_active')
-    ordering = ('id',)
+    ordering = ('username',)
+
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('avatar',)}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {'fields': ('email', 'first_name', 'last_name', 'avatar')}),
+    )
 
 
 @admin.register(Subscription)
