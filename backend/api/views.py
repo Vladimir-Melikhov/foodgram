@@ -46,7 +46,7 @@ from users.models import CustomUser, Subscription
 
 
 class CustomUserViewSet(DjoserUserViewSet):
-    """Вьюсет для пользователей."""
+    """Вьюсет для пользователей"""
 
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
